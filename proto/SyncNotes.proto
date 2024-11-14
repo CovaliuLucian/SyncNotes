@@ -1,0 +1,50 @@
+syntax = "proto3";
+package sync_notes;
+
+service SyncNotes {
+  rpc Foo(FooRequest) returns (FooReply){}
+
+  // Bidirectional streaming RPC for real-time sync
+  rpc SyncNotes (stream SyncRequest) returns (stream SyncResponse);
+}
+
+message FooRequest {
+  string name = 1;
+}
+
+message FooReply {
+  string result = 1;
+}
+
+
+message Note {
+  string id = 1;
+  string title = 2;
+  string content = 3;
+  int64 created_at = 4;
+  int64 updated_at = 5;
+}
+
+message SyncRequest {
+  string note_id = 1;
+  oneof action {
+    NoteChange note_change = 2;
+    NoteConnect connection = 3;
+  }
+}
+
+message NoteChange {
+  string note_id = 1;
+  string client_id = 2;
+  Note note = 3;
+  string change_type = 4; // e.g., "create", "update", "delete"
+  // TODO enum^
+}
+
+message NoteConnect {
+  string client_id = 1;
+}
+
+message SyncResponse {
+  NoteChange note_change = 1;
+}
